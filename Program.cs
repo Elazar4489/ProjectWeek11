@@ -33,7 +33,7 @@ namespace PWeek11
             ReportStatus?[] statuses = new ReportStatus?[100];
            
             int validCount = ProcessReports(allLines, unitNames, reportTypes, priorities, scores, statuses);
-            Console.WriteLine($"Stored {validCount} valid records for analysis");
+            Console.WriteLine($"Stored {validCount} valid records for analysis\n\r");
             DisplayBasicStatistics(scores, validCount);
             DisplayStatusCounts(statuses);
             DisplayTypeCounts(reportTypes);
@@ -56,7 +56,7 @@ namespace PWeek11
                 }
                 else
                 {
-                    Console.WriteLine($"File loaded: {AllLines.Length} lines found");
+                    Console.WriteLine($"File loaded: {AllLines.Length} lines found\n\r");
                     return AllLines;
                 }
             }
@@ -85,17 +85,20 @@ namespace PWeek11
                 }
 
             }
-            Console.WriteLine($"Processing complete\r\nValid records: {ValidLines}\r\nInvalid records: {InvalidLines}");
+            Console.WriteLine(
+                $"Processing complete\r\n\n\r" +
+                $"Valid records: {ValidLines}\r\n\n\r" +
+                $"Invalid records: {InvalidLines}\n\r"
+                );
             return ValidLines;
         }
         
         static double CalculateAverage(double[] scores, int validReports)
         {
             double sum = new double();
-            double countR = (double)validReports;
-            foreach (double score in scores)
+            for (int i=0; i < validReports; i++)
             {
-                sum += score;
+                sum += scores[i];
             }
             if (validReports>0)
             { 
@@ -103,36 +106,36 @@ namespace PWeek11
             }
             return 0.0;
         }
-        static double FindMaxScore(double[] scores)
+        static double FindMaxScore(double[] scores, int validReports)
         {
             double max = scores[0];
-            foreach (double score in scores)
+            for (int i = 0; i < validReports; i++)
             {
-                if (score > max)
+                if (scores[i] > max)
                 {
-                    max = score;
+                    max = scores[i];
                 }
             }
             return max;
         }
-        static double FindMinScore(double[] scores)
+        static double FindMinScore(double[] scores, int validReports)
         {
             double min = scores[0];
-            foreach (double score in scores)
+            for (int i =0; i < validReports; i++)
             {
-                if (score < min)
+                if (scores[i] < min)
                 {
-                    min = score;
+                    min = scores[i];
                 }
             }
             return min;
         }
-        static int CountByStatus(ReportStatus?[] statuses, ReportStatus status)
+        static int CountByStatus(ReportStatus?[] statuses, ReportStatus theStatus)
         {
             int countStatus = 0;
-            foreach (ReportStatus? Astatus in statuses)
+            foreach (ReportStatus? aStatus in statuses)
             {
-                if (Astatus == status)
+                if (aStatus == theStatus)
                 {
                     countStatus += 1;
                 }
@@ -142,9 +145,9 @@ namespace PWeek11
         static int CountByType(ReportType?[] reportTypes, ReportType theType)
         {
             int countType = 0;
-            foreach (ReportType? Atype in reportTypes)
+            foreach (ReportType? aType in reportTypes)
             {
-                if (Atype == theType)
+                if (aType == theType)
                 {
                     countType += 1;
                 }
@@ -154,12 +157,13 @@ namespace PWeek11
         static void DisplayBasicStatistics(double[] scores, int validReports)
         {
             double Average = CalculateAverage(scores, validReports);
-            double max = FindMaxScore(scores);
-            double min = FindMinScore(scores);
+            string AverageStr = Average.ToString("F2");
+            double max = FindMaxScore(scores, validReports);
+            double min = FindMinScore(scores, validReports);
             Console.WriteLine(
-                $"=== Report Statistics ===\n\r" +
+                $"=== Report Statistics ===\n\r\n\r" +
                 $"Total Reports: {validReports}\n\r" +
-                $"Average Score: {Average}\n\r" +
+                $"Average Score: {AverageStr}\n\r" +
                 $"Highest Score: {max}\n\r" +
                 $"Lowest Score: {min}\n\r"
                 );
@@ -171,10 +175,10 @@ namespace PWeek11
             int approved = CountByStatus(statuses, ReportStatus.Approved);
             int rejected = CountByStatus(statuses, ReportStatus.Rejected);
             Console.WriteLine(
-                $"=== Reports by Status ===\n\r" +
-                $"Pending{pending}\n\r" +
-                $"Approved{approved}\n\r" +
-                $"Rejected{rejected}");
+                $"=== Reports by Status ===\n\r\n\r" +
+                $"Pending: {pending}\n\r" +
+                $"Approved: {approved}\n\r" +
+                $"Rejected: {rejected}\n\r");
 
         }
         static void DisplayTypeCounts(ReportType?[] reportTypes)
@@ -184,7 +188,7 @@ namespace PWeek11
             int recon = CountByType(reportTypes, ReportType.Recon);
             int intel = CountByType(reportTypes, ReportType.Intel);
             Console.WriteLine(
-                $"=== Reports by Type ===\n\r" +
+                $"=== Reports by Type ===\n\r\n\r" +
                 $"Collect: {collect}\n\r" +
                 $"Analyze: {analyze}\n\r" +
                 $"Recon: {recon}\n\r" +
@@ -193,33 +197,22 @@ namespace PWeek11
         }
         static void DisplayHighestPriorityApproved(string[] names, ReportType?[] types, int[] priorities, double[] scores, ReportStatus?[] statuses, int validReports)
         {
-            int highP = 0;
+            int highPriority = 0;
             int index = 0;
             for (int i = 0; i < validReports; i++)
             {
-                if (statuses[i] == ReportStatus.Approved && priorities[i] < highP)
+                if (statuses[i] == ReportStatus.Approved && priorities[i] > highPriority)
                 {
-                    highP = priorities[i];
+                    highPriority = priorities[i];
                     index = i;
                 }
             }
             Console.WriteLine(
-                    $"=== Highest Priority Approved Report ===\n\r" +
+                    $"=== Highest Priority Approved Report ===\n\r\n\r" +
                     $"Unit: {names[index]}\n\r" +
                     $"Type: {types[index]}\n\r" +
                     $"Priority: {priorities[index]}\n\r" +
                     $"Score: {scores[index]}\n\r");
-
-            //int[] highestPriorityIndexes = GetIndexesListOfHighestPriority(statuses, priorities, GetHighestPriority(priorities));
-            //foreach (int i in highestPriorityIndexes)
-            //{
-            //    Console.WriteLine(
-            //        $"=== Highest Priority Approved Report ===\n\r" +
-            //        $"Unit: {names[i]}\n\r" +
-            //        $"Type: {types[i]}\n\r" +
-            //        $"Priority: {priorities[i]}\n\r" +
-            //        $"Score: {scores[i]}\n\r");
-            //}
         }
         static void DisplayAverageByPriority(int[] priorities, double[] scores, int validReports)
         {
@@ -229,12 +222,12 @@ namespace PWeek11
             string four = AverageByPriority(priorities, scores, validReports, 4);
             string five = AverageByPriority(priorities, scores, validReports, 5);
             Console.WriteLine(
-                $"=== Average Score by Priority ===\n\r" +
-                $"Priority: 1 {one}\n\r" +
-                $"Priority: 2 {two}\n\r" +
-                $"Priority: 3 {three}\n\r" +
-                $"Priority: 4 {four}\n\r" +
-                $"Priority: 5 {five}"
+                $"=== Average Score by Priority ===\n\r\n\r" +
+                $"Priority 1: {one}\n\r" +
+                $"Priority 2: {two}\n\r" +
+                $"Priority 3: {three}\n\r" +
+                $"Priority 4: {four}\n\r" +
+                $"Priority 5: {five}"
                 );
         }
 
@@ -247,30 +240,34 @@ namespace PWeek11
 
 
 
-        //=============================================================================================================
-        // ============================== Utils =======================================
+        //=============================================================================
+        //============================== Utils ========================================
 
 
         static string[]? GetSplitLine(string line)
         {
             string[] splitLine = line.Split(",");
+            for (int i = 0; i < splitLine.Length; i++)
+            {
+                splitLine[i] = splitLine[i].Trim();
+            }
             if (splitLine.Length != 5)
             {
                 return null;
             }
             return splitLine;
         }
-        static bool CheckData(string[] lines)
+        static bool CheckData(string[] line)
         {
-            if (lines[0].Length > 1)
+            if (line[0].Length > 1)
             {
-                if (Enum.TryParse(lines[1], true, out ReportType theType))
+                if (Enum.TryParse(line[1], true, out ReportType theType))
                 {
-                    if (int.TryParse(lines[2], out int priority) && priority > 0 && priority < 6)
+                    if (int.TryParse(line[2], out int priority) && priority > 0 && priority < 6)
                     {
-                        if (double.TryParse(lines[3], out double score) && score > 0.0 && score <= 100.0)
+                        if (double.TryParse(line[3], out double score) && score >= 0.0 && score <= 100.0)
                         {
-                            if (Enum.TryParse(lines[4], true, out ReportStatus status))
+                            if (Enum.TryParse(line[4], true, out ReportStatus status))
                             {
                                 return true;
                             }
@@ -302,62 +299,24 @@ namespace PWeek11
             return "done";
         }
 
-        //static int GetHighestPriority(int[] priorities)
-        //{
-        //    int highest = 0;
-        //    foreach (int priority in priorities)
-        //    {
-        //        if (priority > highest)
-        //        {
-        //            highest = priority;
-        //        }
-        //    }
-        //    return highest;
-        //}
-        //static int[] GetIndexesListOfHighestPriority(ReportStatus?[] statuses, int[] priorities, int highestPriority)
-        //{
-        //    int[] highestPriorityIndexes = new int[100];
-        //    int j = 0;
-        //    for (int i = 0; i < statuses.Length; i++)
-        //    {
-        //        if (statuses[i] == ReportStatus.Approved && priorities[i] == highestPriority)
-        //        {
-        //            highestPriorityIndexes[j] = i;
-        //            j += 1;
-        //        }
-        //    }
-        //    return highestPriorityIndexes;
-        //}
-        
-        //static int CountValidReports(ReportType?[] arrr)
-        //{
-        //    int validReports = 0;
-        //    for (int i = 0; i < arrr.Length; i++)
-        //    {
-        //        if (arrr[i] is not null)
-        //        {
-        //            validReports++;
-        //        }
-        //    }
-        //    return validReports;
-        //}
-        static string AverageByPriority(int[] priorities, double[] scores, int validReports, int numPrioriy)
+       
+        static string AverageByPriority(int[] priorities, double[] scores, int validReports, int thisPrioriy)
         {
-            double sumOfThisPriority = new double();
+            double sumOfScores = new double();
             double countOfThisPriority = new double();
             for (int i = 0; i < validReports; i++)
             {
-                if (priorities[i] == numPrioriy)
+                if (priorities[i] == thisPrioriy)
                 {
-                    sumOfThisPriority += scores[i];
+                    sumOfScores += scores[i];
                     countOfThisPriority++;
                 }
             }
-            if (sumOfThisPriority > 0)
+            if (sumOfScores > 0)
             {
-                double average = sumOfThisPriority / countOfThisPriority;
-                string averagestr = average.ToString("F2");
-                return averagestr;
+                double average = sumOfScores / countOfThisPriority;
+                string averageStr = average.ToString("F2");
+                return averageStr;
             }
             return "No reports";
         }
